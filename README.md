@@ -1,16 +1,12 @@
 
-Built by https://www.blackbox.ai
-
----
-
 ```markdown
-# MoodFlix - Movie Recommender
+# Nirvana - Movie Recommender
 
 ## Project Overview
-MoodFlix is a web application designed to help users find the perfect movie based on their current mood. The app allows users to view, add, edit, and delete movies categorized by different moods such as happy, sad, excited, relaxed, romantic, and thrilled.
+Nirvana is a web application designed to help users find the perfect movie based on their current mood. The app allows users to view, add, edit, and delete movies categorized by different moods such as happy, sad, excited, relaxed, romantic, and thrilled.
 
 ## Installation
-To run MoodFlix on your local machine, simply download the project files or clone the repository. The project does not require any server-side technology; you can open the `index.html` file directly in your web browser.
+To run Nirvana on your local machine, simply download the project files or clone the repository. The project does not require any server-side technology; you can open the `index.html` file directly in your web browser.
 
 1. **Clone the repository**:
    ```bash
@@ -43,7 +39,7 @@ This project uses the following external resources:
 
 ## Project Structure
 ```
-/moodflix
+/nirvana
 │
 ├── index.html           # Main HTML file containing the application
 └── (No additional files) # No other specific project files were mentioned
