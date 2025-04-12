@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nirvana: Chase'd - Mood & Entertainment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for mood graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Login/Register Section -->
+    <div id="authSection" class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto bg-gray-800 rounded-lg p-6 shadow-lg">
+            <h2 class="text-4xl font-bold mb-2 text-center bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Nirvana: Chase'd</h2>
+            <p class="text-center text-gray-400 mb-6">Track your mood, discover entertainment</p>
+            <div class="flex justify-center gap-4 mb-6">
+                <button onclick="showLoginForm()" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-all">Login</button>
+                <button onclick="showRegisterForm()" class="px-6 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-all">Register</button>
+            </div>
+            <!-- Login Form -->
+            <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full p-2 rounded bg-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full p-2 rounded bg-gray-700" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 py-2 rounded-lg transition-all">Login</button>
+            </form>
+            <!-- Register Form -->
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <div class="mb-4">
+                    <label class="block mb-2">Name</label>
+                    <input type="text" id="registerName" class="w-full p-2 rounded bg-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Email</label>
+                    <input type="email" id="registerEmail" class="w-full p-2 rounded bg-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">Password</label>
+                    <input type="password" id="registerPassword" class="w-full p-2 rounded bg-gray-700" required>
+                </div>
+                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 py-2 rounded-lg transition-all">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="appSection" class="hidden">
+        <!-- Header -->
+        <header class="text-center py-10 bg-gradient-to-r from-purple-600 to-pink-600">
+            <h1 class="text-4xl font-bold mb-2">Nirvana: Chase'd</h1>
+            <p class="text-xl mb-4">Track your mood, get personalized recommendations</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="showAddMoodForm()" class="bg-green-500 hover:bg-green-600 px-6 py-2 rounded-lg transition-all">
+                    <i class="fas fa-plus mr-2"></i>Add Mood Entry
+                </button>
+                <button onclick="handleLogout()" class="bg-red-500 hover:bg-red-600 px-6 py-2 rounded-lg transition-all">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Mood Graph -->
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-gray-800 rounded-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-4">Your Mood Timeline</h2>
+                <canvas id="moodGraph" class="w-full" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Add Mood Form -->
+        <div id="moodForm" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-4">How are you feeling?</h2>
+                <form id="addMoodForm" onsubmit="handleMoodSubmit(event)">
+                    <div class="mb-4">
+                        <label class="block mb-2">Mood</label>
+                        <select id="moodSelect" class="w-full p-2 rounded bg-gray-700" required>
+                            <option value="happy">Happy 😊</option>
+                            <option value="sad">Sad 😢</option>
+                            <option value="excited">Excited 🎉</option>
+                            <option value="relaxed">Relaxed 😌</option>
+                            <option value="angry">Angry 😠</option>
+                            <option value="anxious">Anxious 😰</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2">Notes</label>
+                        <textarea id="moodNotes" class="w-full p-2 rounded bg-gray-700" rows="3"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeMoodForm()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">Cancel</button>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div id="recommendationsSection" class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Movie Recommendations -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4">Recommended Movies</h2>
+                    <div id="movieRecommendations" class="space-y-4"></div>
+                </div>
+                <!-- Music Recommendations -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4">Recommended Music</h2>
+                    <div id="musicRecommendations" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood History -->
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6">Your Mood History</h2>
+            <div id="moodHistory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // Entertainment recommendations database
+        const recommendations = {
+            happy: {
+                movies: [
+                    { title: "La La Land", year: 2016, genre: "Musical/Romance" },
+                    { title: "The Secret Life of Walter Mitty", year: 2013, genre: "Adventure" },
+                    { title: "The Grand Budapest Hotel", year: 2014, genre: "Comedy" }
+                ],
+                music: [
+                    { title: "Happy", artist: "Pharrell Williams", genre: "Pop" },
+                    { title: "Walking on Sunshine", artist: "Katrina & The Waves", genre: "Pop Rock" },
+                    { title: "Good Vibrations", artist: "The Beach Boys", genre: "Pop" }
+                ]
+            },
+            sad: {
+                movies: [
+                    { title: "The Notebook", year: 2004, genre: "Romance/Drama" },
+                    { title: "A Star Is Born", year: 2018, genre: "Drama/Music" },
+                    { title: "Eternal Sunshine of the Spotless Mind", year: 2004, genre: "Drama" }
+                ],
+                music: [
+                    { title: "Someone Like You", artist: "Adele", genre: "Pop" },
+                    { title: "Yesterday", artist: "The Beatles", genre: "Rock" },
+                    { title: "All By Myself", artist: "Celine Dion", genre: "Pop" }
+                ]
+            },
+            excited: {
+                movies: [
+                    { title: "Avengers: Endgame", year: 2019, genre: "Action" },
+                    { title: "Mission: Impossible", year: 2018, genre: "Action" },
+                    { title: "Fast & Furious", year: 2021, genre: "Action" }
+                ],
+                music: [
+                    { title: "Eye of the Tiger", artist: "Survivor", genre: "Rock" },
+                    { title: "Can't Hold Us", artist: "Macklemore", genre: "Hip Hop" },
+                    { title: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars", genre: "Pop" }
+                ]
+            },
+            relaxed: {
+                movies: [
+                    { title: "The Secret Garden", year: 2020, genre: "Drama" },
+                    { title: "Soul", year: 2020, genre: "Animation" },
+                    { title: "The Life of Pi", year: 2012, genre: "Adventure" }
+                ],
+                music: [
+                    { title: "Weightless", artist: "Marconi Union", genre: "Ambient" },
+                    { title: "Claire de Lune", artist: "Debussy", genre: "Classical" },
+                    { title: "Somewhere Over the Rainbow", artist: "Israel Kamakawiwo'ole", genre: "Folk" }
+                ]
+            }
+        };
+
+        // Initialize data from localStorage
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let moods = JSON.parse(localStorage.getItem('moods')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        // Auth functions
+        function checkAuth() {
+            if (currentUser) {
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('appSection').classList.remove('hidden');
+                displayMoods();
+                updateMoodGraph();
+                updateRecommendations();
+            } else {
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('appSection').classList.add('hidden');
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+
+        function showRegisterForm() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                checkAuth();
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (users.some(u => u.email === email)) {
+                alert('Email already registered');
+                return;
+            }
+
+            const newUser = { id: Date.now(), name, email, password };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            checkAuth();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            checkAuth();
+        }
+
+        // Mood functions
+        function showAddMoodForm() {
+            document.getElementById('moodForm').classList.remove('hidden');
+        }
+
+        function closeMoodForm() {
+            document.getElementById('moodForm').classList.add('hidden');
+        }
+
+        function handleMoodSubmit(event) {
+            event.preventDefault();
+            const mood = document.getElementById('moodSelect').value;
+            const notes = document.getElementById('moodNotes').value;
+
+            const newMood = {
+                id: Date.now(),
+                userId: currentUser.id,
+                mood,
+                notes,
+                timestamp: new Date().toISOString()
+            };
+
+            moods.push(newMood);
+            localStorage.setItem('moods', JSON.stringify(moods));
+            
+            closeMoodForm();
+            displayMoods();
+            updateMoodGraph();
+            updateRecommendations();
+        }
+
+        function displayMoods() {
+            const moodHistory = document.getElementById('moodHistory');
+            const userMoods = moods.filter(m => m.userId === currentUser.id)
+                                  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            moodHistory.innerHTML = userMoods.map(mood => `
+                <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xl font-bold">${getMoodEmoji(mood.mood)} ${mood.mood.charAt(0).toUpperCase() + mood.mood.slice(1)}</h3>
+                        <span class="text-sm text-gray-400">${new Date(mood.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p class="text-gray-300">${mood.notes || 'No notes'}</p>
+                    <button onclick="deleteMood(${mood.id})" class="mt-4 text-red-500 hover:text-red-600">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateMoodGraph() {
+            const ctx = document.getElementById('moodGraph').getContext('2d');
+            const userMoods = moods.filter(m => m.userId === currentUser.id)
+                                 .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            const moodValues = {
+                'happy': 5,
+                'excited': 4,
+                'relaxed': 3,
+                'anxious': 2,
+                'sad': 1,
+                'angry': 0
+            };
+
+            const data = {
+                labels: userMoods.map(m => new Date(m.timestamp).toLocaleDateString()),
+                datasets: [{
+                    label: 'Mood Level',
+                    data: userMoods.map(m => moodValues[m.mood]),
+                    borderColor: 'rgb(147, 51, 234)',
+                    backgroundColor: 'rgba(147, 51, 234, 0.2)',
+                    tension: 0.4
+                }]
+            };
+
+            if (window.moodChart) {
+                window.moodChart.destroy();
+            }
+
+            window.moodChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return Object.keys(moodValues).find(key => moodValues[key] === value) || '';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecommendations() {
+            const userMoods = moods.filter(m => m.userId === currentUser.id);
+            const latestMood = userMoods[userMoods.length - 1]?.mood || 'happy';
+            
+            const movieRecs = recommendations[latestMood]?.movies || [];
+            const musicRecs = recommendations[latestMood]?.music || [];
+
+            document.getElementById('movieRecommendations').innerHTML = movieRecs.map(movie => `
+                <div class="bg-gray-700 rounded p-3">
+                    <h3 class="font-bold">${movie.title} (${movie.year})</h3>
+                    <p class="text-gray-400">${movie.genre}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('musicRecommendations').innerHTML = musicRecs.map(song => `
+                <div class="bg-gray-700 rounded p-3">
+                    <h3 class="font-bold">${song.title}</h3>
+                    <p class="text-gray-400">${song.artist} - ${song.genre}</p>
+                </div>
+            `).join('');
+        }
+
+        function deleteMood(moodId) {
+            if (confirm('Are you sure you want to delete this mood entry?')) {
+                moods = moods.filter(m => m.id !== moodId);
+                localStorage.setItem('moods', JSON.stringify(moods));
+                displayMoods();
+                updateMoodGraph();
+                updateRecommendations();
+            }
+        }
+
+        function getMoodEmoji(mood) {
+            const emojis = {
+                happy: '😊',
+                sad: '😢',
+                excited: '🎉',
+                relaxed: '😌',
+                angry: '😠',
+                anxious: '😰'
+            };
+            return emojis[mood] || '😐';
+        }
+
+        // Initialize app
+        checkAuth();
+        showLoginForm();
+    </script>
+</body>
+</html>
